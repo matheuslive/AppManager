@@ -17,6 +17,8 @@ This is a personal fork based on upstream **v4.1.1**. Changes in this branch:
   in a second pass that only updates those columns. Only one full update runs at a time.
 - In ADB mode, `storagestats` is called with the shell package name, as other privileged
   calls already do.
+- **Original logo.** The v1 App Manager logo (the gear, replaced upstream in 2023) is used
+  for the launcher, TV banner, notifications and the Files icon.
 
 See [CHANGELOG.md](CHANGELOG.md).
 
