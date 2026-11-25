@@ -47,6 +47,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "app_name", "App Manager"
+            // Fork: sign release builds with the in-repo dev key so they can be installed directly
+            signingConfig signingConfigs.debug
         }
         debug {
             applicationIdSuffix '.debug'
