@@ -1,5 +1,25 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later OR CC-BY-SA-4.0 -->
 
+## Fork notes
+
+This is a personal fork based on upstream **v4.1.1**. Changes in this branch:
+
+- **App sizes, data usage and screen time without the "Usage access" feature.** When the
+  feature is disabled but the privileged server runs as root, system or shell (root/ADB
+  modes), these values are read through the privileged server (`storagestats`, `netstats`,
+  `usagestats`), which does not need App Manager's own usage access app op. The size, data
+  usage and screen time sort options stay available. In no-root mode nothing changes. The app
+  info page falls back to `du` (root) when `storagestats` fails for a package.
+- **The app database updater no longer blocks the UI for tens of seconds.** It used to hold
+  the database lock while querying every installed package (and its size), so the
+  backup/restore dialog and other readers waited until it finished. Now the data is
+  collected without the lock and written in short transactions; sizes and usage are refreshed
+  in a second pass that only updates those columns. Only one full update runs at a time.
+- In ADB mode, `storagestats` is called with the shell package name, as other privileged
+  calls already do.
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 <p align="center">
   <img src="docs/raw/images/icon.png" alt="App Manager Logo" height="150dp">
 </p>
