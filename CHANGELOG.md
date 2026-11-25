@@ -2,6 +2,7 @@
 
 ## 2026-11-25
 
+- **12:35 Release signing:** release builds are signed with the in-repo dev key, so the fork's release APK can be installed directly. ([4c7448a](https://github.com/matheuslive/AppManager/commit/4c7448a00))
 - **12:08 Original logo:** the v1 App Manager logo (gear) is back for the launcher (adaptive, monochrome and legacy icons), TV banner, store/README icons, notifications and the Files launcher icon (folder with the v1 gear). ([30646a7](https://github.com/matheuslive/AppManager/commit/30646a748), [6f285d4](https://github.com/matheuslive/AppManager/commit/6f285d4ea))
 
 ## 2026-11-24
