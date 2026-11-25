@@ -36,6 +36,16 @@ public interface AppDao {
     @Update
     void update(App app);
 
+    /**
+     * Updates only the size and usage columns, so that a concurrent update of the other columns
+     * (e.g. after a package change) is never overwritten with stale data.
+     */
+    @Query("UPDATE app SET code_size = :codeSize, data_size = :dataSize, mobile_data = :mobileData, "
+            + "wifi_data = :wifiData, open_count = :openCount, screen_time = :screenTime, "
+            + "last_usage_time = :lastUsageTime WHERE package_name = :packageName AND user_id = :userId")
+    void updateSizeAndUsage(String packageName, int userId, long codeSize, long dataSize, long mobileData,
+                            long wifiData, int openCount, long screenTime, long lastUsageTime);
+
     @Query("DELETE FROM app WHERE 1")
     void deleteAll();
 

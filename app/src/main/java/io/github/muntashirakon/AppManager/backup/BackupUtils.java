@@ -152,8 +152,7 @@ public final class BackupUtils {
             }
             backupMetadata.put(latestBackup.packageName, latestBackup);
         }
-        appDb.deleteAllBackups();
-        appDb.insertBackups(backups);
+        appDb.replaceAllBackups(backups);
         return backupMetadata;
     }
 
