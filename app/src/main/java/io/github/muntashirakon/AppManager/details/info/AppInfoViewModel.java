@@ -64,13 +64,13 @@ import io.github.muntashirakon.AppManager.rules.RuleType;
 import io.github.muntashirakon.AppManager.rules.compontents.ComponentUtils;
 import io.github.muntashirakon.AppManager.rules.struct.ComponentRule;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
-import io.github.muntashirakon.AppManager.settings.FeatureController;
 import io.github.muntashirakon.AppManager.settings.Prefs;
 import io.github.muntashirakon.AppManager.ssaid.SsaidSettings;
 import io.github.muntashirakon.AppManager.types.PackageSizeInfo;
 import io.github.muntashirakon.AppManager.uri.UriManager;
 import io.github.muntashirakon.AppManager.usage.AppUsageStatsManager;
 import io.github.muntashirakon.AppManager.usage.TimeInterval;
+import io.github.muntashirakon.AppManager.usage.UsageDataAccess;
 import io.github.muntashirakon.AppManager.usage.UsageUtils;
 import io.github.muntashirakon.AppManager.utils.ArrayUtils;
 import io.github.muntashirakon.AppManager.utils.ExUtils;
@@ -363,7 +363,7 @@ public class AppInfoViewModel extends AndroidViewModel {
                 if (Paths.exists(applicationInfo.nativeLibraryDir)) {
                     appInfo.jniDir = applicationInfo.nativeLibraryDir;
                 }
-                boolean hasUsageAccess = FeatureController.isUsageAccessEnabled() && SelfPermissions.checkUsageStatsPermission();
+                boolean hasUsageAccess = UsageDataAccess.canReadUsageData();
                 if (hasUsageAccess) {
                     // Net statistics
                     AppUsageStatsManager.DataUsage dataUsage;
@@ -376,6 +376,10 @@ public class AppInfoViewModel extends AndroidViewModel {
                     // Set sizes
                     appInfo.sizeInfo = PackageUtils.getPackageSizeInfo(getApplication(), packageName, userId,
                             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? applicationInfo.storageUuid : null);
+                    if (appInfo.sizeInfo == null) {
+                        // storagestats failed: fall back to du as root (single package, on demand)
+                        appInfo.sizeInfo = UsageDataAccess.getPackageSizeInfoByDu(applicationInfo, userId);
+                    }
                 }
                 // Set installer app
                 InstallSourceInfoCompat installSourceInfo = ExUtils.exceptionAsNull(() ->

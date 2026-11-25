@@ -147,6 +147,7 @@ import io.github.muntashirakon.AppManager.types.PackageSizeInfo;
 import io.github.muntashirakon.AppManager.types.UserPackagePair;
 import io.github.muntashirakon.AppManager.uri.GrantUriUtils;
 import io.github.muntashirakon.AppManager.usage.AppUsageStatsManager;
+import io.github.muntashirakon.AppManager.usage.UsageDataAccess;
 import io.github.muntashirakon.AppManager.users.UserInfo;
 import io.github.muntashirakon.AppManager.users.Users;
 import io.github.muntashirakon.AppManager.utils.ArrayUtils;
@@ -1900,7 +1901,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     setPathsAndDirectories(appInfo);
                     setDataUsage(appInfo);
                     // Storage and Cache
-                    if (FeatureController.isUsageAccessEnabled()) {
+                    if (FeatureController.isUsageAccessEnabled() || UsageDataAccess.canReadUsageData()) {
                         setStorageAndCache(appInfo);
                     }
                 }

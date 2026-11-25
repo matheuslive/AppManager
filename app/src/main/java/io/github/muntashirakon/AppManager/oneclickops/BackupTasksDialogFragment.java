@@ -28,10 +28,9 @@ import io.github.muntashirakon.AppManager.backup.BackupManager;
 import io.github.muntashirakon.AppManager.backup.dialog.BackupRestoreDialogFragment;
 import io.github.muntashirakon.AppManager.db.entity.Backup;
 import io.github.muntashirakon.AppManager.main.ApplicationItem;
-import io.github.muntashirakon.AppManager.self.SelfPermissions;
-import io.github.muntashirakon.AppManager.settings.FeatureController;
 import io.github.muntashirakon.AppManager.usage.AppUsageStatsManager;
 import io.github.muntashirakon.AppManager.usage.TimeInterval;
+import io.github.muntashirakon.AppManager.usage.UsageDataAccess;
 import io.github.muntashirakon.AppManager.utils.CpuUtils;
 import io.github.muntashirakon.AppManager.utils.LangUtils;
 import io.github.muntashirakon.AppManager.utils.PackageUtils;
@@ -198,7 +197,7 @@ public class BackupTasksDialogFragment extends DialogFragment {
                     ignoredDirs.add("cache");
                     ignoredDirs.add("code_cache");
                     ignoredDirs.add("no_backup");
-                    boolean hasUsageAccess = FeatureController.isUsageAccessEnabled() && SelfPermissions.checkUsageStatsPermission();
+                    boolean hasUsageAccess = UsageDataAccess.canReadUsageData();
                     BackupManager backupManager = new BackupManager();
                     Backup backup;
                     for (ApplicationItem item : PackageUtils.getInstalledOrBackedUpApplicationsFromDb(requireContext(), false, true)) {

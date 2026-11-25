@@ -29,6 +29,7 @@ import io.github.muntashirakon.AppManager.misc.ListOptions;
 import io.github.muntashirakon.AppManager.profiles.ProfileManager;
 import io.github.muntashirakon.AppManager.settings.FeatureController;
 import io.github.muntashirakon.AppManager.settings.Ops;
+import io.github.muntashirakon.AppManager.usage.UsageDataAccess;
 import io.github.muntashirakon.AppManager.users.UserInfo;
 import io.github.muntashirakon.AppManager.users.Users;
 import io.github.muntashirakon.AppManager.utils.ArrayUtils;
@@ -311,7 +312,7 @@ public class MainListOptions extends ListOptions {
             put(SORT_BY_TRACKERS, R.string.trackers);
             put(SORT_BY_LAST_ACTION, R.string.last_actions);
             put(SORT_BY_INSTALLATION_DATE, R.string.sort_by_installation_date);
-            if (FeatureController.isUsageAccessEnabled()) {
+            if (FeatureController.isUsageAccessEnabled() || UsageDataAccess.isPrivilegedSourceAvailable()) {
                 put(SORT_BY_TOTAL_SIZE, R.string.sort_by_total_size);
                 put(SORT_BY_DATA_USAGE, R.string.sort_by_data_usage);
                 put(SORT_BY_OPEN_COUNT, R.string.sort_by_times_opened);

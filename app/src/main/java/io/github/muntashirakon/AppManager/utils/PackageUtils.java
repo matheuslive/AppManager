@@ -91,6 +91,7 @@ import io.github.muntashirakon.AppManager.rules.compontents.ComponentUtils;
 import io.github.muntashirakon.AppManager.runner.Runner;
 import io.github.muntashirakon.AppManager.runner.RunnerUtils;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
+import io.github.muntashirakon.AppManager.settings.Ops;
 import io.github.muntashirakon.AppManager.types.PackageSizeInfo;
 import io.github.muntashirakon.AppManager.types.UserPackagePair;
 import io.github.muntashirakon.AppManager.users.Users;
@@ -348,8 +349,11 @@ public final class PackageUtils {
                 IStorageStatsManager storageStatsManager = IStorageStatsManager.Stub.asInterface(ProxyBinder
                         .getService(Context.STORAGE_STATS_SERVICE));
                 String uuidString = storageUuid != null ? StorageManagerHidden.convert(storageUuid) : null;
+                // The call is made by the privileged server when available: pass the package that
+                // matches its UID (e.g. shell in ADB mode), otherwise the app-op check fails.
+                String callingPackage = SelfPermissions.getCallingPackage(Ops.getWorkingUid());
                 StorageStats storageStats = storageStatsManager.queryStatsForPackage(uuidString, packageName,
-                        userHandle, context.getPackageName());
+                        userHandle, callingPackage);
                 packageSizeInfo.set(new PackageSizeInfo(packageName, storageStats, userHandle));
             } catch (Throwable e) {
                 Log.w(TAG, e);

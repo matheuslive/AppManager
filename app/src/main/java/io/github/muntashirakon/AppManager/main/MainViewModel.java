@@ -61,14 +61,13 @@ import io.github.muntashirakon.AppManager.profiles.ProfileManager;
 import io.github.muntashirakon.AppManager.profiles.struct.AppsFilterProfile;
 import io.github.muntashirakon.AppManager.profiles.struct.AppsProfile;
 import io.github.muntashirakon.AppManager.profiles.struct.BaseProfile;
-import io.github.muntashirakon.AppManager.self.SelfPermissions;
-import io.github.muntashirakon.AppManager.settings.FeatureController;
 import io.github.muntashirakon.AppManager.settings.Prefs;
 import io.github.muntashirakon.AppManager.types.PackageChangeReceiver;
 import io.github.muntashirakon.AppManager.types.UserPackagePair;
 import io.github.muntashirakon.AppManager.usage.AppUsageStatsManager;
 import io.github.muntashirakon.AppManager.usage.PackageUsageInfo;
 import io.github.muntashirakon.AppManager.usage.TimeInterval;
+import io.github.muntashirakon.AppManager.usage.UsageDataAccess;
 import io.github.muntashirakon.AppManager.usage.UsageUtils;
 import io.github.muntashirakon.AppManager.users.Users;
 import io.github.muntashirakon.AppManager.utils.ArrayUtils;
@@ -458,7 +457,7 @@ public class MainViewModel extends AndroidViewModel implements ListOptions.ListO
                 boolean needRunning = (profileFilterItem != null && profileFilterItem.getTimesRunningOptionUsed() > 0) || (filterItem.getTimesRunningOptionUsed() > 0);
                 Map<String, PackageUsageInfo> packageUsageInfoList = new HashMap<>();
                 if (needUsage) {
-                    boolean hasUsageAccess = FeatureController.isUsageAccessEnabled() && SelfPermissions.checkUsageStatsPermission();
+                    boolean hasUsageAccess = UsageDataAccess.canReadUsageData();
                     if (hasUsageAccess) {
                         TimeInterval interval = UsageUtils.getLastWeek();
                         for (int userId : Users.getUsersIds()) {

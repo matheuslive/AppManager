@@ -44,6 +44,16 @@ public class PackageSizeInfo {
         obbSize = getObbSizeInternal(ue);
     }
 
+    public PackageSizeInfo(@NonNull String packageName, long codeSize, long dataSize, long cacheSize,
+                           long mediaSize, long obbSize) {
+        this.packageName = packageName;
+        this.codeSize = codeSize;
+        this.dataSize = dataSize;
+        this.cacheSize = cacheSize;
+        this.mediaSize = mediaSize;
+        this.obbSize = obbSize;
+    }
+
     public long getTotalSize() {
         return codeSize + dataSize + cacheSize + mediaSize + obbSize;
     }

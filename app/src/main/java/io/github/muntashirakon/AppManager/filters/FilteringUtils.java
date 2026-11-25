@@ -21,10 +21,10 @@ import java.util.Map;
 
 import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
-import io.github.muntashirakon.AppManager.settings.FeatureController;
 import io.github.muntashirakon.AppManager.usage.AppUsageStatsManager;
 import io.github.muntashirakon.AppManager.usage.PackageUsageInfo;
 import io.github.muntashirakon.AppManager.usage.TimeInterval;
+import io.github.muntashirakon.AppManager.usage.UsageDataAccess;
 import io.github.muntashirakon.AppManager.usage.UsageUtils;
 import io.github.muntashirakon.AppManager.utils.ExUtils;
 import io.github.muntashirakon.AppManager.utils.ThreadUtils;
@@ -34,7 +34,7 @@ public final class FilteringUtils {
     @WorkerThread
     public static List<FilterableAppInfo> loadFilterableAppInfo(@NonNull int[] userIds) {
         List<FilterableAppInfo> filterableAppInfoList = new ArrayList<>();
-        boolean hasUsageAccess = FeatureController.isUsageAccessEnabled() && SelfPermissions.checkUsageStatsPermission();
+        boolean hasUsageAccess = UsageDataAccess.canReadUsageData();
         for (int userId : userIds) {
             if (ThreadUtils.isInterrupted()) return Collections.emptyList();
 
