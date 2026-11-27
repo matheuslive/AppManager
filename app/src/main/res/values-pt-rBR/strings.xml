@@ -1059,6 +1059,7 @@
     <string name="extract">Extrair</string>
     <string name="replace">Substituir</string>
     <string name="rename">Renomear</string>
+    <string name="failed_to_rename_backup">Falha ao renomear o backup: %s</string>
     <string name="import_from_sb">Importar de Swift Backup 3.0 – 3.2</string>
     <string name="pref_import_backups_hint">Selecione um diretório contendo os arquivos de backup (Swift Backup / Titanium Backup) ou diretórios (OAndBackup)</string>
     <string name="smali">Smali</string>

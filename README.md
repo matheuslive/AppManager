@@ -30,6 +30,11 @@ This is a personal fork based on upstream **v4.1.1**. Changes in this branch:
   Nothing runs from the intent alone: the operation is chosen in the dialog, flags come from
   the current preferences, and other extras are ignored. The activity closes with the dialog;
   a started operation continues in the background.
+- **Named backups without the name prompt.** With "Back up multiple" enabled, the backup is
+  created right away, named after the current date and time. Any existing backup can be
+  renamed from the restore dialog (select one backup, ⋮ → Rename). For v5 backups the name
+  lives in the (possibly encrypted) metadata, so the metadata and its checksum entry are
+  rewritten with the backup's own crypto; v4 backups are renamed by their directory.
 
 See [CHANGELOG.md](CHANGELOG.md).
 

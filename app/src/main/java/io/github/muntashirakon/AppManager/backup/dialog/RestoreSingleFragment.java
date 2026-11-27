@@ -31,13 +31,19 @@ import java.util.List;
 
 import io.github.muntashirakon.AppManager.R;
 import io.github.muntashirakon.AppManager.backup.BackupFlags;
+import io.github.muntashirakon.AppManager.backup.BackupUtils;
 import io.github.muntashirakon.AppManager.backup.struct.BackupMetadataV5;
 import io.github.muntashirakon.AppManager.batchops.BatchOpsManager;
+import io.github.muntashirakon.AppManager.logs.Log;
+import io.github.muntashirakon.AppManager.utils.ThreadUtils;
 import io.github.muntashirakon.AppManager.utils.UIUtils;
+import io.github.muntashirakon.dialog.TextInputDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableFlagsDialogBuilder;
 import io.github.muntashirakon.util.AdapterUtils;
 
 public class RestoreSingleFragment extends Fragment {
+    private static final String TAG = RestoreSingleFragment.class.getSimpleName();
+
     public static RestoreSingleFragment getInstance() {
         return new RestoreSingleFragment();
     }
@@ -79,9 +85,15 @@ public class RestoreSingleFragment extends Fragment {
             Menu menu = popupMenu.getMenu();
             MenuItem freezeMenuItem = menu.add(R.string.freeze);
             MenuItem unfreezeMenuItem = menu.add(R.string.unfreeze);
+            MenuItem renameMenuItem = menu.add(R.string.rename);
 
             freezeMenuItem.setEnabled((total - frozenCount) > 0);
             unfreezeMenuItem.setEnabled(frozenCount > 0);
+            renameMenuItem.setEnabled(total == 1);
+            renameMenuItem.setOnMenuItemClickListener(item -> {
+                handleRename(adapter, adapter.getSelectedBackups().get(0));
+                return true;
+            });
 
             freezeMenuItem.setOnMenuItemClickListener(item -> {
                 List<BackupMetadataV5> selectedBackups = adapter.getSelectedBackups();
@@ -145,6 +157,41 @@ public class RestoreSingleFragment extends Fragment {
                 .show();
     }
 
+    private void handleRename(@NonNull BackupAdapter adapter, @NonNull BackupMetadataV5 backup) {
+        new TextInputDialogBuilder(mContext, R.string.input_backup_name)
+                .setTitle(R.string.rename)
+                .setInputText(backup.metadata.backupName)
+                .setPositiveButton(R.string.ok, (dialog, which, input, isChecked) -> {
+                    String newName = input == null ? "" : input.toString().trim();
+                    if (newName.isEmpty() || newName.equals(backup.metadata.backupName)) {
+                        return;
+                    }
+                    Context appContext = mContext.getApplicationContext();
+                    ThreadUtils.postOnBackgroundThread(() -> {
+                        try {
+                            BackupMetadataV5 renamed = BackupUtils.renameBackup(appContext, backup, newName);
+                            ThreadUtils.postOnMainThread(() -> {
+                                List<BackupMetadataV5> list = mViewModel.getBackupInfo().getBackupMetadataList();
+                                int i = list.indexOf(backup);
+                                if (i >= 0) {
+                                    try {
+                                        list.set(i, renamed);
+                                    } catch (UnsupportedOperationException ignore) {
+                                    }
+                                }
+                                adapter.replace(backup, renamed);
+                            });
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not rename backup", e);
+                            ThreadUtils.postOnMainThread(() -> UIUtils.displayLongToast(
+                                    R.string.failed_to_rename_backup, e.getMessage()));
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
     private void handleDelete(List<BackupMetadataV5> selectedBackups) {
         new MaterialAlertDialogBuilder(mContext)
                 .setTitle(R.string.delete_backup)
@@ -198,6 +245,14 @@ public class RestoreSingleFragment extends Fragment {
                 }
             }
             notifyItemRangeInserted(0, mBackups.size());
+        }
+
+        public void replace(@NonNull BackupMetadataV5 oldBackup, @NonNull BackupMetadataV5 newBackup) {
+            int position = mBackups.indexOf(oldBackup);
+            if (position >= 0) {
+                mBackups.set(position, newBackup);
+                notifyItemChanged(position, AdapterUtils.STUB);
+            }
         }
 
         public int selectionCount() {

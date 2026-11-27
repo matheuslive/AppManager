@@ -5,7 +5,6 @@ package io.github.muntashirakon.AppManager.backup.dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import io.github.muntashirakon.AppManager.R;
 import io.github.muntashirakon.AppManager.backup.BackupFlags;
 import io.github.muntashirakon.AppManager.batchops.BatchOpsManager;
 import io.github.muntashirakon.AppManager.utils.DateUtils;
-import io.github.muntashirakon.dialog.TextInputDialogBuilder;
 import io.github.muntashirakon.widget.MaterialAlertView;
 
 public class BackupFragment extends Fragment {
@@ -88,23 +86,11 @@ public class BackupFragment extends Fragment {
         operationInfo.flags = flags.getFlags();
         operationInfo.op = BatchOpsManager.OP_BACKUP;
         if (flags.backupMultiple()) {
-            // Multiple backup is requested, no need to warn users about backups since the
-            // user has a choice between overwriting the existing backup or create a new one
-            // TODO(18/9/20): Add overwrite option
-            new TextInputDialogBuilder(mContext, R.string.input_backup_name)
-                    .setTitle(R.string.backup)
-                    .setHelperText(R.string.input_backup_name_description)
-                    .setPositiveButton(R.string.ok, (dialog, which, input, isChecked) -> {
-                        String backupName;
-                        if (TextUtils.isEmpty(input)) {
-                            backupName = DateUtils.formatMediumDateTime(mContext, System.currentTimeMillis());
-                        } else {
-                            backupName = input.toString();
-                        }
-                        operationInfo.backupNames = new String[]{backupName};
-                        mViewModel.prepareForOperation(operationInfo);
-                    })
-                    .show();
+            // Multiple backup is requested: a new backup with the current date-time as its name
+            // (it can be renamed later from the restore dialog)
+            String backupName = DateUtils.formatMediumDateTime(mContext, System.currentTimeMillis());
+            operationInfo.backupNames = new String[]{backupName};
+            mViewModel.prepareForOperation(operationInfo);
         } else {
             // Base backup requested
             int baseBackupCount = mViewModel.getBackupInfoList().size() - mViewModel.getAppsWithoutBackups().size();

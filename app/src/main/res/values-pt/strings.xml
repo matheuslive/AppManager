@@ -1085,6 +1085,7 @@
     <string name="exit_confirmation">Confirmação de saída</string>
     <string name="replace">Substituir</string>
     <string name="rename">Alterar nome</string>
+    <string name="failed_to_rename_backup">Falha ao alterar o nome da cópia de segurança: %s</string>
     <string name="extract">Extrair</string>
     <string name="intent_firewall_and_disable">IFW + desativar</string>
     <string name="intent_firewall">IFW</string>

@@ -16,9 +16,11 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 
 import org.jetbrains.annotations.Contract;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -184,6 +186,53 @@ public final class BackupUtils {
         appDb.deleteBackup(Backup.fromBackupMetadataV5(metadata));
         appDb.updateApplication(context, metadata.metadata.packageName);
         BroadcastUtils.sendDbPackageAltered(context, new String[]{metadata.metadata.packageName});
+    }
+
+    /**
+     * Rename an existing backup. For v5 and up, the name is stored in the (possibly encrypted) metadata;
+     * for v4 and earlier, it is a part of the directory name.
+     *
+     * @return The metadata of the renamed backup
+     */
+    @WorkerThread
+    @NonNull
+    public static BackupMetadataV5 renameBackup(@NonNull Context context, @NonNull BackupMetadataV5 backup,
+                                                @NonNull String newName) throws IOException {
+        String relativeDir = backup.info.getRelativeDir();
+        BackupItems.BackupItem item = BackupItems.findBackupItem(relativeDir);
+        try {
+            if (item.isV5AndUp()) {
+                BackupMetadataV5 current = item.getMetadata();
+                BackupMetadataV5.Metadata metadata = new BackupMetadataV5.Metadata(current.metadata, newName);
+                item.replaceMetadataV5(metadata.serializeToJson().toString(4)
+                        .getBytes(StandardCharsets.UTF_8), current.info.checksumAlgo);
+            } else {
+                Path path = item.getBackupPath();
+                String newDirName = getV4BackupName(backup.info.userId, newName);
+                if (path.requireParent().hasFile(newDirName)) {
+                    throw new IOException("A backup named " + newName + " already exists.");
+                }
+                if (!path.renameTo(newDirName)) {
+                    throw new IOException("Could not rename " + path + " to " + newDirName);
+                }
+                relativeDir = getV4RelativeDir(newDirName, backup.metadata.packageName);
+            }
+        } catch (JSONException e) {
+            throw new IOException(e);
+        } finally {
+            item.cleanup();
+        }
+        BackupItems.BackupItem newItem = BackupItems.findBackupItem(relativeDir);
+        BackupMetadataV5 renamed;
+        try {
+            renamed = newItem.getMetadata();
+        } finally {
+            newItem.cleanup();
+        }
+        // The database uses the backup name as a part of the primary key
+        new AppDb().deleteBackup(Backup.fromBackupMetadataV5(backup));
+        putBackupToDbAndBroadcast(context, renamed);
+        return renamed;
     }
 
     @WorkerThread

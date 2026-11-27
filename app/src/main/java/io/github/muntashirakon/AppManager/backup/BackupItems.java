@@ -11,9 +11,12 @@ import androidx.annotation.Nullable;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +32,8 @@ import io.github.muntashirakon.AppManager.db.entity.Backup;
 import io.github.muntashirakon.AppManager.logcat.helper.SaveLogHelper;
 import io.github.muntashirakon.AppManager.logs.Log;
 import io.github.muntashirakon.AppManager.settings.Prefs;
+import io.github.muntashirakon.AppManager.utils.DigestUtils;
+import io.github.muntashirakon.io.IoUtils;
 import io.github.muntashirakon.io.Path;
 import io.github.muntashirakon.io.PathReader;
 import io.github.muntashirakon.io.PathWriter;
@@ -362,6 +367,69 @@ public class BackupItems {
                 // Needs to be decrypted in restore mode
                 Path file = getBackupPath().findFile(MetadataManager.META_V5_FILE + CryptoUtils.getExtension(mCryptoMode));
                 return decryptIfRequired ? decrypt(new Path[]{file})[0] : file;
+            }
+        }
+
+        /**
+         * Replace the (possibly encrypted) metadata of an existing v5 backup and update its entry in the
+         * (possibly encrypted) checksum file. The crypto must already be set up, i.e. the metadata must
+         * have been read through this item.
+         */
+        public void replaceMetadataV5(@NonNull byte[] metadataJson, @NonNull String checksumAlgo)
+                throws IOException {
+            if (mBackupMode || !isV5AndUp()) {
+                throw new IOException("Not an existing v5 backup: " + mBackupPath);
+            }
+            String ext = CryptoUtils.getExtension(mCryptoMode);
+            Path dir = getBackupPath();
+            String metadataName = MetadataManager.META_V5_FILE + ext;
+            String checksumsName = CHECKSUMS_TXT + ext;
+            Path metadataFile = dir.findFile(metadataName);
+            Path checksumsFile = dir.findFile(checksumsName);
+            String checksums = decrypt(new Path[]{checksumsFile})[0].getContentAsString();
+            // Write the new files next to the old ones, then swap
+            Path newMetadataFile = dir.findOrCreateFile("." + metadataName + ".new", null);
+            Path newChecksumsFile = dir.findOrCreateFile("." + checksumsName + ".new", null);
+            try {
+                writeEncrypted(metadataJson, newMetadataFile);
+                String metadataChecksum = DigestUtils.getHexDigest(checksumAlgo, newMetadataFile);
+                StringBuilder sb = new StringBuilder();
+                boolean found = false;
+                for (String line : checksums.split("\n")) {
+                    if (line.isEmpty()) continue;
+                    String[] parts = line.split("\t", 2);
+                    if (parts.length == 2 && parts[1].equals(metadataName)) {
+                        line = metadataChecksum + "\t" + metadataName;
+                        found = true;
+                    }
+                    sb.append(line).append("\n");
+                }
+                if (!found) {
+                    throw new IOException("No checksum for " + metadataName + " in " + mBackupPath);
+                }
+                writeEncrypted(sb.toString().getBytes(), newChecksumsFile);
+                if (!newMetadataFile.moveTo(metadataFile)) {
+                    throw new IOException("Could not replace " + metadataFile);
+                }
+                if (!newChecksumsFile.moveTo(checksumsFile)) {
+                    throw new IOException("Could not replace " + checksumsFile);
+                }
+            } finally {
+                if (newMetadataFile.exists()) newMetadataFile.delete();
+                if (newChecksumsFile.exists()) newChecksumsFile.delete();
+            }
+        }
+
+        private void writeEncrypted(@NonNull byte[] data, @NonNull Path out) throws IOException {
+            try (InputStream is = new ByteArrayInputStream(data);
+                 OutputStream os = out.openOutputStream()) {
+                synchronized (mCryptoGuard) {
+                    if (mCrypto == null) {
+                        IoUtils.copy(is, os);
+                    } else {
+                        mCrypto.encrypt(is, os);
+                    }
+                }
             }
         }
 

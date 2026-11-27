@@ -268,8 +268,15 @@ public class BackupMetadataV5 implements LocalizedString {
         }
 
         public Metadata(@NonNull Metadata metadata) {
+            this(metadata, metadata.backupName);
+        }
+
+        /**
+         * Copy of {@code metadata} with a different backup name (used for renaming a backup).
+         */
+        public Metadata(@NonNull Metadata metadata, @Nullable String backupName) {
             version = metadata.version;
-            backupName = metadata.backupName;
+            this.backupName = backupName;
             label = metadata.label;
             packageName = metadata.packageName;
             versionName = metadata.versionName;
