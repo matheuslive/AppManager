@@ -2,6 +2,7 @@
 
 ## 2026-11-27
 
+- **16:37 Double restore:** restoring a single app from the dialog ran two restores of it in parallel (the package/user pair was queued twice, upstream bug); now it runs once. ([708fdaa](https://github.com/matheuslive/AppManager/commit/708fdaad2))
 - **16:32 Root shell hang:** after a restore (or any app info reload) every root command could hang until App Manager was killed: `cmd package dump` swallowed the root shell's stdin (libsu's end-of-job marker), and interrupted callers left orphan output readers. Commands now run with `</dev/null` on a never-interrupted thread; the full package dump of the tag cloud only runs for system apps. ([3a5951f](https://github.com/matheuslive/AppManager/commit/3a5951f82))
 - **16:08 Backup rename fix:** the cleanup after the swap deleted the new metadata/checksum files (`Path#moveTo` retargets the source); tested on the S20: backup without prompt, rename, restore with checksum verification. ([e3a88b5](https://github.com/matheuslive/AppManager/commit/e3a88b514))
 - **12:01 Backup names:** with "Back up multiple" the backup is created without the name prompt, named after the current date-time; existing backups can be renamed from the restore dialog (⋮ → Rename), rewriting the v5 metadata and its checksum with the backup's crypto (v4: directory rename); database entry updated. ([c712524](https://github.com/matheuslive/AppManager/commit/c71252450))

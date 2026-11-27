@@ -39,6 +39,8 @@ This is a personal fork based on upstream **v4.1.1**. Changes in this branch:
   stdin (`cmd package dump` used to swallow libsu's end-of-command marker) and on a thread
   that callers' interrupts don't reach, so a cancelled loader can't break the shell. The tag
   cloud's full package dump only runs for system apps.
+- Restoring a single app from the backup/restore dialog runs one restore (upstream queued
+  the same package/user pair twice and ran both restores in parallel).
 
 See [CHANGELOG.md](CHANGELOG.md).
 
