@@ -382,6 +382,9 @@ public class BackupRestoreDialogViewModel extends AndroidViewModel {
                     operationInfo.packageList.add(backupInfo.packageName);
                     operationInfo.userIdListMappedToPackageList.add(userId);
                 }
+                // Done: the loop below would add the same package/user pairs again, and the batch
+                // operation would run two restores of the same app at the same time
+                return;
             }
         }
         // Otherwise, user checks are mandatory.
