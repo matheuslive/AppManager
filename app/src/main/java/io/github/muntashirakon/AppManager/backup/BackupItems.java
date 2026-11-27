@@ -390,6 +390,9 @@ public class BackupItems {
             // Write the new files next to the old ones, then swap
             Path newMetadataFile = dir.findOrCreateFile("." + metadataName + ".new", null);
             Path newChecksumsFile = dir.findOrCreateFile("." + checksumsName + ".new", null);
+            // Path#moveTo() makes the source Path point to the destination: only clean up what was not moved
+            boolean metadataMoved = false;
+            boolean checksumsMoved = false;
             try {
                 writeEncrypted(metadataJson, newMetadataFile);
                 String metadataChecksum = DigestUtils.getHexDigest(checksumAlgo, newMetadataFile);
@@ -411,12 +414,14 @@ public class BackupItems {
                 if (!newMetadataFile.moveTo(metadataFile)) {
                     throw new IOException("Could not replace " + metadataFile);
                 }
+                metadataMoved = true;
                 if (!newChecksumsFile.moveTo(checksumsFile)) {
                     throw new IOException("Could not replace " + checksumsFile);
                 }
+                checksumsMoved = true;
             } finally {
-                if (newMetadataFile.exists()) newMetadataFile.delete();
-                if (newChecksumsFile.exists()) newChecksumsFile.delete();
+                if (!metadataMoved) newMetadataFile.delete();
+                if (!checksumsMoved) newChecksumsFile.delete();
             }
         }
 
