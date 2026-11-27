@@ -130,7 +130,8 @@ public class BackupRestoreDialogFragment extends CapsuleBottomSheetDialogFragmen
                 ArrayList<String> failedPackages = intent.getStringArrayListExtra(BatchOpsService.EXTRA_FAILED_PKG);
                 mActionCompleteInterface.onActionComplete(mMode, failedPackages != null ? failedPackages.toArray(new String[0]) : new String[0]);
             }
-            mActivity.unregisterReceiver(mBatchOpsBroadCastReceiver);
+            // Registered on the application context: the activity may be gone by now
+            mActivity.getApplicationContext().unregisterReceiver(mBatchOpsBroadCastReceiver);
         }
     };
 
@@ -396,7 +397,9 @@ public class BackupRestoreDialogFragment extends CapsuleBottomSheetDialogFragmen
         if (mActionBeginInterface != null) {
             mActionBeginInterface.onActionBegin(operationInfo.mode);
         }
-        ContextCompat.registerReceiver(mActivity, mBatchOpsBroadCastReceiver,
+        // Application context: the host activity may finish right after the dialog is dismissed
+        // (e.g. BackupRestoreActivity), before the operation completes.
+        ContextCompat.registerReceiver(mActivity.getApplicationContext(), mBatchOpsBroadCastReceiver,
                 new IntentFilter(BatchOpsService.ACTION_BATCH_OPS_COMPLETED), ContextCompat.RECEIVER_NOT_EXPORTED);
         // Start batch ops service
         BatchBackupOptions options = new BatchBackupOptions(operationInfo.flags, operationInfo.backupNames, operationInfo.relativeDirs);

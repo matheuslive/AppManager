@@ -4,6 +4,7 @@ package io.github.muntashirakon.AppManager.backup.dialog;
 
 import android.annotation.UserIdInt;
 import android.app.Application;
+import android.content.pm.ApplicationInfo;
 import android.os.PowerManager;
 import android.os.UserHandleHidden;
 
@@ -28,6 +29,8 @@ import java.util.concurrent.Future;
 import io.github.muntashirakon.AppManager.backup.BackupFlags;
 import io.github.muntashirakon.AppManager.backup.struct.BackupMetadataV5;
 import io.github.muntashirakon.AppManager.batchops.BatchOpsManager;
+import io.github.muntashirakon.AppManager.compat.ApplicationInfoCompat;
+import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
 import io.github.muntashirakon.AppManager.db.entity.App;
 import io.github.muntashirakon.AppManager.db.entity.Backup;
 import io.github.muntashirakon.AppManager.db.utils.AppDb;
@@ -213,7 +216,14 @@ public class BackupRestoreDialogViewModel extends AndroidViewModel {
             }
             backupInfo.setBackupMetadataList(metadataList);
             if (apps.isEmpty()) {
-                backupInfo.setInstalled(false);
+                // Not in the app database yet (e.g. installed while App Manager wasn't running, or
+                // opened directly by BackupRestoreActivity before the database was loaded): ask the
+                // package manager instead of waiting for a database update.
+                ApplicationInfo info = getInstalledApplicationInfo(userPackagePair);
+                backupInfo.setInstalled(info != null);
+                if (info != null) {
+                    backupInfo.setAppLabel(info.loadLabel(getApplication().getPackageManager()).toString());
+                }
             } else {
                 for (App app : apps) {
                     backupInfo.setAppLabel(app.packageLabel);
@@ -320,6 +330,18 @@ public class BackupRestoreDialogViewModel extends AndroidViewModel {
         }
         // Send status
         mBackupInfoStateLiveData.postValue(status);
+    }
+
+    @WorkerThread
+    @Nullable
+    private static ApplicationInfo getInstalledApplicationInfo(@NonNull UserPackagePair pair) {
+        try {
+            ApplicationInfo info = PackageManagerCompat.getApplicationInfo(pair.getPackageName(),
+                    PackageManagerCompat.MATCH_UNINSTALLED_PACKAGES, pair.getUserId());
+            return ApplicationInfoCompat.isInstalled(info) ? info : null;
+        } catch (Throwable th) {
+            return null;
+        }
     }
 
     @WorkerThread
