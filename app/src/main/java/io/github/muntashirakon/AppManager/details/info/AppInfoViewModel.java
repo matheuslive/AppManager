@@ -166,8 +166,9 @@ public class AppInfoViewModel extends AndroidViewModel {
             }
             tagCloud.isSystemApp = ApplicationInfoCompat.isSystemApp(applicationInfo);
             tagCloud.isUpdatedSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
-            String codePath = PackageUtils.getHiddenCodePathOrDefault(packageName, applicationInfo.publicSourceDir);
-            tagCloud.isSystemlessPath = !isExternalApk && MagiskUtils.isSystemlessPath(codePath);
+            // Only system apps can be replaced systemlessly: skip the (full) package dump otherwise
+            tagCloud.isSystemlessPath = !isExternalApk && tagCloud.isSystemApp && MagiskUtils.isSystemlessPath(
+                    PackageUtils.getHiddenCodePathOrDefault(packageName, applicationInfo.publicSourceDir));
             if (!isExternalApk && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 DomainVerificationUserState userState = DomainVerificationManagerCompat
                         .getDomainVerificationUserState(packageName, userId);
