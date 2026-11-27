@@ -2,7 +2,7 @@
 
 ## 2026-11-27
 
-- **Backup/restore entry:** exported `BackupRestoreActivity` for `app-manager://backup?id=<packageName>&user=<userId>` (`VIEW`, `DEFAULT`/`BROWSABLE`) opens the backup/restore dialog directly; finishes when the dialog closes. The dialog now checks the package manager when a package is not in the app database yet, and listens for completion on the application context.
+- **00:09 Backup/restore entry:** exported `BackupRestoreActivity` for `app-manager://backup?id=<packageName>&user=<userId>` (`VIEW`, `DEFAULT`/`BROWSABLE`) opens the backup/restore dialog directly; finishes when the dialog closes. The dialog now checks the package manager when a package is not in the app database yet, and listens for completion on the application context. ([40158642](https://github.com/matheuslive/AppManager/commit/40158642e), [ac1ba12](https://github.com/matheuslive/AppManager/commit/ac1ba12d9))
 
 ## 2026-11-25
 
