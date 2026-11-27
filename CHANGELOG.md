@@ -1,5 +1,9 @@
 # Changelog (fork)
 
+## 2026-11-27
+
+- **Backup/restore entry:** exported `BackupRestoreActivity` for `app-manager://backup?id=<packageName>&user=<userId>` (`VIEW`, `DEFAULT`/`BROWSABLE`) opens the backup/restore dialog directly; finishes when the dialog closes. The dialog now checks the package manager when a package is not in the app database yet, and listens for completion on the application context.
+
 ## 2026-11-25
 
 - **12:35 Release signing:** release builds are signed with the in-repo dev key, so the fork's release APK can be installed directly. ([4c7448a](https://github.com/matheuslive/AppManager/commit/4c7448a00))

@@ -19,6 +19,17 @@ This is a personal fork based on upstream **v4.1.1**. Changes in this branch:
   calls already do.
 - **Original logo.** The v1 App Manager logo (the gear, replaced upstream in 2023) is used
   for the launcher, TV banner, notifications and the Files icon.
+- **Direct backup/restore entry.** Other apps can open the backup/restore dialog of a package
+  without going through its app info page:
+  `android.intent.action.VIEW` (categories `DEFAULT` and `BROWSABLE`) with data
+  `app-manager://backup?id=<packageName>&user=<userId>`, handled by
+  `io.github.muntashirakon.AppManager.backup.dialog.BackupRestoreActivity` (exported,
+  transparent, excluded from recents). `user` is optional (default: the current user). An
+  invalid user, or a package that is neither installed in that user nor backed up, shows a toast
+  and closes. Authentication (screen lock, mode of operation) is the same as for other screens.
+  Nothing runs from the intent alone: the operation is chosen in the dialog, flags come from
+  the current preferences, and other extras are ignored. The activity closes with the dialog;
+  a started operation continues in the background.
 
 See [CHANGELOG.md](CHANGELOG.md).
 
