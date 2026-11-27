@@ -1164,6 +1164,25 @@
             android:taskAffinity=".details.ActivityLauncherShortcutActivity"
             android:theme="@style/AppTheme.TransparentBackground" />
         <activity
+            android:name=".backup.dialog.BackupRestoreActivity"
+            android:enableOnBackInvokedCallback="false"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/backup_restore"
+            android:taskAffinity=".backup.dialog.BackupRestoreActivity"
+            android:theme="@style/AppTheme.TransparentBackground">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="backup"
+                    android:scheme="app-manager" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".apk.behavior.FreezeUnfreezeActivity"
             android:enableOnBackInvokedCallback="false"
             android:excludeFromRecents="true"
