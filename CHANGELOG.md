@@ -2,6 +2,7 @@
 
 ## 2026-11-27
 
+- **12:01 Backup names:** with "Back up multiple" the backup is created without the name prompt, named after the current date-time; existing backups can be renamed from the restore dialog (⋮ → Rename), rewriting the v5 metadata and its checksum with the backup's crypto (v4: directory rename); database entry updated. ([c712524](https://github.com/matheuslive/AppManager/commit/c71252450))
 - **00:09 Backup/restore entry:** exported `BackupRestoreActivity` for `app-manager://backup?id=<packageName>&user=<userId>` (`VIEW`, `DEFAULT`/`BROWSABLE`) opens the backup/restore dialog directly; finishes when the dialog closes. The dialog now checks the package manager when a package is not in the app database yet, and listens for completion on the application context. ([40158642](https://github.com/matheuslive/AppManager/commit/40158642e), [ac1ba12](https://github.com/matheuslive/AppManager/commit/ac1ba12d9))
 
 ## 2026-11-25
