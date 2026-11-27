@@ -35,6 +35,10 @@ This is a personal fork based on upstream **v4.1.1**. Changes in this branch:
   renamed from the restore dialog (select one backup, ⋮ → Rename). For v5 backups the name
   lives in the (possibly encrypted) metadata, so the metadata and its checksum entry are
   rewritten with the backup's own crypto; v4 backups are renamed by their directory.
+- **Root commands no longer hang the app.** Root shell commands run with `/dev/null` as
+  stdin (`cmd package dump` used to swallow libsu's end-of-command marker) and on a thread
+  that callers' interrupts don't reach, so a cancelled loader can't break the shell. The tag
+  cloud's full package dump only runs for system apps.
 
 See [CHANGELOG.md](CHANGELOG.md).
 
